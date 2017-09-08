@@ -54,7 +54,7 @@ func MakeWriter(wrapped ...io.Writer) io.Writer {
 	return io.MultiWriter(append(wrapped, xtraceWriter{})...)
 }
 
-var topic = []byte("xtrace")
+var topic = []byte("xtpb")
 var processName = strings.Join(os.Args, " ")
 
 var pnameOnce = sync.Once{}
