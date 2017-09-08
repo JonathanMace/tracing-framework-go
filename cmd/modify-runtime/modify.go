@@ -77,13 +77,13 @@ func modifyRuntime2dotGo() {
 	if !alreadyModified {
 		outfile, err := os.OpenFile(path, os.O_WRONLY, 0)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to open", path)
+			fmt.Fprintln(os.Stderr, "Failed to open", path, err)
 			os.Exit(1)
 		}
 
 		err = format.Node(outfile, fset, f)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to write to", path)
+			fmt.Fprintln(os.Stderr, "Failed to write to", path, err)
 			os.Exit(1)
 		}
 		outfile.Close()
