@@ -53,7 +53,7 @@ func main() {
 
 	expect := `package main
 
-import xtr "github.com/brown-csci1380/tracing-framework-go/xtrace/client"
+import xtr "github.com/JonathanMace/tracing-framework-go/xtrace/client"
 
 func one(a int) {}
 

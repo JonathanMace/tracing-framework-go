@@ -31,9 +31,9 @@ func rewriteGos(fset *token.FileSet, info types.Info, qual types.Qualifier, f *a
 	})
 	if changed {
 		// astutil.AddNamedImport(fset, f, rname, "runtime")
-		// astutil.AddNamedImport(fset, f, localImportName, "github.com/brown-csci1380/tracing-framework-go/local")
+		// astutil.AddNamedImport(fset, f, localImportName, "github.com/JonathanMace/tracing-framework-go/local")
 		// astutil.AddImport(fset, f, "runtime")
-		astutil.AddNamedImport(fset, f, xtrImportName, "github.com/brown-csci1380/tracing-framework-go/xtrace/client")
+		astutil.AddNamedImport(fset, f, xtrImportName, "github.com/JonathanMace/tracing-framework-go/xtrace/client")
 
 	}
 	return changed, err

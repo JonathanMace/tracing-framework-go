@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/brownsys/tracing-framework-go/local"
-	"github.com/brownsys/tracing-framework-go/xtrace/client"
+	"github.com/JonathanMace/tracing-framework-go/local"
+	"github.com/JonathanMace/tracing-framework-go/xtrace/client"
 )
 
 func main() {

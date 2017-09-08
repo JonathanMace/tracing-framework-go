@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/brown-csci1380/tracing-framework-go/xtrace/client/internal"
-	"github.com/brown-csci1380/tracing-framework-go/xtrace/internal/pubsub"
+	"github.com/JonathanMace/tracing-framework-go/xtrace/client/internal"
+	"github.com/JonathanMace/tracing-framework-go/xtrace/internal/pubsub"
 	"github.com/golang/protobuf/proto"
 )
 

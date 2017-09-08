@@ -1,7 +1,7 @@
 package grpcutil
 
 import (
-	"github.com/brown-csci1380/tracing-framework-go/xtrace/client"
+	"github.com/JonathanMace/tracing-framework-go/xtrace/client"
 	"strconv"
 	"strings"
 )
