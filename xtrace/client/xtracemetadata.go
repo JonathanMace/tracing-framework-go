@@ -10,7 +10,8 @@ var bagIndex = uint64(5)  // Hard code bagIndex 5 for now
 
 // Get XTraceMetadata from the goroutine-local baggage
 func getMetadata() (xmd XTraceMetadata) {
-	GetLocalBaggage().ReadBag(bagIndex, &xmd)
+	baggage := GetLocalBaggage()
+	baggage.ReadBag(bagIndex, &xmd)
 	return
 }
 
