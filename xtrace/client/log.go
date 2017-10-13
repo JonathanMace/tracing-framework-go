@@ -67,43 +67,36 @@ func SetProcessName(pname string) {
 
 // Log a given message with the extra preceding events given
 // adds a ParentEventId for all precedingEvents _in addition_ to the recorded parent of this event
-func LogRedundancies(str string, precedingEvents []int64) {
+func log(str string) {
 	if client == nil {
 		//fail silently
 		return
 	}
 
-	parent, event := newEvent()
+	taskID := GetTaskID()
+	parentEventIDs, newEventID := newEvent()
+
+	if taskID <= 0 { return }
+
 	var report internal.XTraceReportv4
+	report.TaskId = &taskID
+	report.EventId = &newEventID
+	report.ParentEventId = parentEventIDs
 
-	report.TaskId = new(int64)
-	*report.TaskId = GetTaskID()
-	if GetTaskID() <= 0 {
-		return
-	}
-	report.ParentEventId = append(precedingEvents, parent)
-	report.EventId = new(int64)
-	*report.EventId = event
-	report.Label = new(string)
-	*report.Label = str
+	ts := time.Now().UnixNano() / 1000
+	report.Timestamp = &ts
 
-	report.Timestamp = new(int64)
-	*report.Timestamp = time.Now().UnixNano() / 1000 // milliseconds
+	pid := int32(os.Getpid())
+	report.ProcessId = &pid
+	report.ProcessName = &processName
 
-	report.ProcessId = new(int32)
-	*report.ProcessId = int32(os.Getpid())
-	report.ProcessName = new(string)
-	*report.ProcessName = processName
 	host, err := os.Hostname()
 	if err != nil {
-		report.Host = new(string)
-		*report.Host = host
+		report.Host = &host
 	}
 
-	// report.ThreadName = new(string)
-	// *report.ThreadName = "Thread name"
-	report.Agent = new(string)
-	*report.Agent = str
+	report.Label = &str
+	report.Agent = &str
 
 	if getLocal().tags != nil {
 		report.Tags = getLocal().tags

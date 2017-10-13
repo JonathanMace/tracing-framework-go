@@ -11,8 +11,7 @@ var token local.Token
 
 type localStorage struct {
 	taskID       int64
-	eventID      int64
-	redundancies []int64
+	eventIDs     []int64
 	tags         []string
 }
 
@@ -24,14 +23,13 @@ type RPCMetadata struct {
 
 func init() {
 	token = local.Register(&localStorage{
-		taskID:       randInt64(),
-		eventID:      randInt64(),
-		redundancies: []int64{},
+		taskID:       0,
+		eventIDs:     []int64{},
 	}, local.Callbacks{
 		func(l interface{}) interface{} {
 			// deep copy l
 			n := *(l.(*localStorage))
-			n.redundancies = []int64{}
+			n.eventIDs = []int64{}
 			return &n
 		},
 	})
@@ -53,30 +51,26 @@ func getLocal() *localStorage {
 func GetRPCMetadata() RPCMetadata {
 	l := getLocal()
 	var r RPCMetadata
-	r.Events = append(l.redundancies, l.eventID)
+	r.Events = l.eventIDs
 	r.TaskID = l.taskID
 	return r
 }
 
 func (r *RPCMetadata) Set() {
 	l := getLocal()
-	r.Events = append(l.redundancies, l.eventID)
+	r.Events = l.eventIDs
 	r.TaskID = l.taskID
 }
 
 func RPCReceived(r RPCMetadata, msg string) {
 	SetTaskID(r.TaskID)
-	events := r.Events
-	if len(events) >= 1 {
-		SetEventID(events[0])
-		getLocal().redundancies = append([]int64{}, events[1:]...)
-	}
+	SetEventIDs(r.Events...)
 	Log(msg)
 }
 
 func RPCReturned(r RPCMetadata, msg string) {
 	SetTaskID(r.TaskID)
-	AddRedundancies(r.Events...)
+	SetEventIDs(r.Events...)
 	Log(msg)
 }
 
@@ -86,8 +80,8 @@ func RPCReturned(r RPCMetadata, msg string) {
 //
 // WARNING: This will overwrite any previous Event ID,
 // so call with caution.
-func SetEventID(eventID int64) {
-	getLocal().eventID = eventID
+func SetEventIDs(eventIDs ...int64) {
+	getLocal().eventIDs = eventIDs
 }
 
 // SetTaskID sets the current goroutine's X-Trace Task ID.
@@ -110,7 +104,7 @@ func AddTags(str ...string) {
 
 func NewTask(tags ...string) {
 	SetTaskID(randInt64())
-	SetEventID(randInt64())
+	SetEventIDs(randInt64())
 	getLocal().tags = tags
 }
 
@@ -118,8 +112,8 @@ func NewTask(tags ...string) {
 // Note that if one has not been set yet, GetEventID will
 // return 0. This should be used when propagating Event IDs
 // over RPC calls or other channels.
-func GetEventID() (eventID int64) {
-	return getLocal().eventID
+func GetEventIDs() []int64 {
+	return getLocal().eventIDs
 }
 
 // GetTaskID gets the current goroutine's X-Trace Task ID.
@@ -130,21 +124,11 @@ func GetTaskID() (taskID int64) {
 	return getLocal().taskID
 }
 
-func AddRedundancies(eventIDs ...int64) {
-	getLocal().redundancies = append(getLocal().redundancies, eventIDs...)
-}
-
-func PopRedundancies() []int64 {
-	eventIDs := append([]int64{}, getLocal().redundancies...)
-	getLocal().redundancies = []int64{}
-	return eventIDs
-}
-
-func newEvent() (parent, event int64) {
-	parent = GetEventID()
+func newEvent() (parents []int64, event int64) {
+	parents = GetEventIDs()
 	event = randInt64()
-	SetEventID(event)
-	return parent, event
+	SetEventIDs(event)
+	return parents, event
 }
 
 func randInt64() int64 {
