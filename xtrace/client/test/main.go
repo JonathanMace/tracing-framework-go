@@ -18,6 +18,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println("Logging")
+
+	client.StartTask("go/test/main.go")
+
 	client.Log("1")
 	client.Log("2")
 	client.Log("3")

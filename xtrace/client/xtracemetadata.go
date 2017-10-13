@@ -23,7 +23,7 @@ func setMetadata(xmd XTraceMetadata) {
 }
 
 // Starts a new X-Trace task by generating and saving random TaskID
-func NewTask(tags ...string) {
+func StartTask(tags ...string) {
 	var xmd XTraceMetadata
 	xmd.SetTaskID(randInt64())
 	setMetadata(xmd)

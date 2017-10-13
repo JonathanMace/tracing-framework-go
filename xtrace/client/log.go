@@ -11,6 +11,8 @@ import (
 	"github.com/JonathanMace/tracing-framework-go/xtrace/client/internal"
 	"github.com/JonathanMace/tracing-framework-go/xtrace/internal/pubsub"
 	"github.com/golang/protobuf/proto"
+	"runtime"
+	"math"
 )
 
 var client *pubsub.Client
@@ -88,8 +90,10 @@ func logWithTags(str string, tags ...string) {
 	report.Timestamp = &ts
 
 	pid := int32(os.Getpid())
+	fakeTid := int32(uint32(uint64(runtime.GetGoID()) % math.MaxUint32))
 	report.ProcessId = &pid
 	report.ProcessName = &processName
+	report.ThreadId = &fakeTid
 
 	host, err := os.Hostname()
 	if err != nil {

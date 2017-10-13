@@ -99,6 +99,10 @@ func GetLocal() interface{} {
 func SetLocal(local interface{}) {
     getg().local = local
 }
+
+func GetGoID() int64 {
+	return getg().goid
+}
 `
 
 func addMethodsToRuntime() {
