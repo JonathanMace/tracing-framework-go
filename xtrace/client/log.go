@@ -119,7 +119,7 @@ func log(str string) {
 // Log logs the given message. Log must not be
 // called before Connect has been called successfully.
 func Log(str string) {
-	LogRedundancies(str, PopRedundancies())
+	log(str)
 }
 
 func Logf(format string, args ...interface{}) {
