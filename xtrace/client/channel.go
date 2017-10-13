@@ -2,23 +2,24 @@ package client
 
 import (
 	"sync"
+	tp "github.com/tracingplane/tracingplane-go/tracingplane"
 )
 
-var registeredChannels map[interface{}]chan int64 = make(map[interface{}]chan int64)
+var registeredChannels map[interface{}]chan tp.BaggageContext = make(map[interface{}]chan tp.BaggageContext)
 var rcLock sync.Mutex
 
 const BUF = 2
 
 // called by the reciever of a value across a channel to find out what event sent the value
 // the argument 'channel' should be any channel the goroutine is waiting to recieve a value
-// from. returns a chan int64 which will emit every eventid that has registered as sending
+// from. returns a chan tp.BaggageContext which will emit every eventid that has registered as sending
 // along the channel
-func RegisterChannelReciever(channel interface{}) (ch chan int64) {
+func RegisterChannelReciever(channel interface{}) (ch chan tp.BaggageContext) {
 	rcLock.Lock()
 	defer rcLock.Unlock()
 	ch, ok := registeredChannels[channel]
 	if !ok {
-		ch = make(chan int64, BUF)
+		ch = make(chan tp.BaggageContext, BUF)
 		registeredChannels[channel] = ch
 	}
 	return
@@ -27,24 +28,23 @@ func RegisterChannelReciever(channel interface{}) (ch chan int64) {
 // Convenience method. Get the event id of the last sender in the channel, and
 // add it to the local store of redundant edges
 func ReadChannelEvent(channel interface{}) {
-	redund := GetChannelSender(channel)
-	AddRedundancies(redund...)
+	MergeLocalWith(GetChannelSender(channel))
 }
 
 // Get the last EventID that sent a value along the provided channel.
 // Returns a singleton slice containing the most recent EventID of the sender,
 // so long as the sender called called SendChannelEvent before sending
 // the value. Returns an empty slice if no sender is known.
-func GetChannelSender(channel interface{}) []int64 {
+func GetChannelSender(channel interface{}) tp.BaggageContext {
 	ch := RegisterChannelReciever(channel)
 
 	select {
 	// if the recv blocks, there must have been no call to SendChannelEvent on the
 	// channel as the function argument
-	case sender := <-ch:
-		return []int64{sender}
+	case baggage := <-ch:
+		return baggage
 	default:
-		return []int64{}
+		return tp.BaggageContext{}
 	}
 }
 
@@ -56,12 +56,12 @@ func SendChannelEvent(channel interface{}) {
 	ch, ok := registeredChannels[channel]
 
 	if !ok {
-		ch = make(chan int64, BUF)
+		ch = make(chan tp.BaggageContext, BUF)
 		registeredChannels[channel] = ch
 	}
-	eventID := GetEventID()
+	baggage := GetLocalBaggage()
 	// do this in a separate goroutine because chan sends can block unless there is a reciever ready
 	go func() {
-		ch <- eventID
+		ch <- baggage
 	}()
 }

@@ -67,20 +67,21 @@ func SetProcessName(pname string) {
 
 // Log a given message with the extra preceding events given
 // adds a ParentEventId for all precedingEvents _in addition_ to the recorded parent of this event
-func log(str string) {
+func logWithTags(str string, tags ...string) {
 	if client == nil {
 		//fail silently
 		return
 	}
 
-	taskID := GetTaskID()
-	parentEventIDs, newEventID := newEvent()
+	valid, taskID, parentEventIDs, eventID := Event()
 
-	if taskID <= 0 { return }
+	if !valid {
+		return
+	}
 
 	var report internal.XTraceReportv4
 	report.TaskId = &taskID
-	report.EventId = &newEventID
+	report.EventId = &eventID
 	report.ParentEventId = parentEventIDs
 
 	ts := time.Now().UnixNano() / 1000
@@ -98,9 +99,8 @@ func log(str string) {
 	report.Label = &str
 	report.Agent = &str
 
-	if getLocal().tags != nil {
-		report.Tags = getLocal().tags
-		getLocal().tags = nil
+	if len(tags) > 0 {
+		report.Tags = tags
 	}
 
 	buf, err := proto.Marshal(&report)
@@ -119,9 +119,13 @@ func log(str string) {
 // Log logs the given message. Log must not be
 // called before Connect has been called successfully.
 func Log(str string) {
-	log(str)
+	logWithTags(str)
+}
+
+func LogWithTags(str string, tags ...string) {
+	logWithTags(str, tags...)
 }
 
 func Logf(format string, args ...interface{}) {
-	Log(fmt.Sprintf(format, args...))
+	logWithTags(fmt.Sprintf(format, args...))
 }

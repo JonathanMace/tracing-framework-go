@@ -20,7 +20,10 @@ func (xTraceMetadata *XTraceMetadata) HasTaskID() bool {
 }
 
 func (xTraceMetadata *XTraceMetadata) GetTaskID() int64 {
-	return *xTraceMetadata.taskID
+	if xTraceMetadata.taskID != nil {
+		return *xTraceMetadata.taskID
+	}
+	return 0
 }
 
 func (xTraceMetadata *XTraceMetadata) SetTaskID(taskID int64)  {
@@ -36,6 +39,11 @@ func (xTraceMetadata *XTraceMetadata) AddParentEventID(parentEventIDs ...int64) 
 	for _,parentEventID := range(parentEventIDs) {
 		xTraceMetadata.parentEventIDs[parentEventID] = struct{}{}
 	}
+}
+
+func (xTraceMetadata *XTraceMetadata) SetParentEventID(parentEventIDs ...int64) {
+	xTraceMetadata.ClearParentEventIDs()
+	xTraceMetadata.AddParentEventID(parentEventIDs...)
 }
 
 func (xTraceMetadata *XTraceMetadata) RemoveParentEventID(parentEventID int64) {
