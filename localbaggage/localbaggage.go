@@ -38,3 +38,8 @@ func Branch() tracingplane.BaggageContext {
 func Merge(other tracingplane.BaggageContext) {
 	Set(Get().MergeWith(other))
 }
+
+// Remove baggage from the current goroutine
+func Clear() {
+	golocal.Set(nil)
+}
