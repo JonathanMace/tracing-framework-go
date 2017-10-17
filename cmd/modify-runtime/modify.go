@@ -406,6 +406,6 @@ func addMethodsToRuntime() {
 
 func main() {
 	modifyProcDotGo()
-	//modifyRuntime2dotGo()
-	//addMethodsToRuntime()
+	modifyRuntime2dotGo()
+	addMethodsToRuntime()
 }
