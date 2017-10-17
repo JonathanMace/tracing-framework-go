@@ -20,7 +20,7 @@ func GoLocalSimple() GoLocal {
 // in the new goroutine will be derived by calling deriveFunction.
 // Register should only be called during initialization and in the main goroutine
 func GoLocalDerivable(deriveFunction func(local interface{}) interface{}) GoLocal {
-	gls.deriveCallbacks = append(gls.deriveCallbacks, noderive)
+	gls.deriveCallbacks = append(gls.deriveCallbacks, deriveFunction)
 	return GoLocal(len(gls.deriveCallbacks)-1)
 }
 

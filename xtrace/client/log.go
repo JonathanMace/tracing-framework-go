@@ -86,8 +86,10 @@ func logWithTags(str string, tags ...string) {
 	report.EventId = &eventID
 	report.ParentEventId = parentEventIDs
 
-	ts := time.Now().UnixNano() / 1000
+	hrt := time.Now().UnixNano()
+	ts := hrt / 1000000
 	report.Timestamp = &ts
+	report.Hrt = &hrt
 
 	pid := int32(os.Getpid())
 	fakeTid := int32(uint32(uint64(runtime.GetGoID()) % math.MaxUint32))

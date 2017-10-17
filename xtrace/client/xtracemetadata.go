@@ -4,22 +4,23 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
+	"github.com/JonathanMace/tracing-framework-go/localbaggage"
 )
 
 var bagIndex = uint64(5)  // Hard code bagIndex 5 for now
 
-// Get XTraceMetadata from the goroutine-local baggage
+// Get XTraceMetadata from the goroutine-local localbaggage
 func getMetadata() (xmd XTraceMetadata) {
-	baggage := GetLocalBaggage()
+	baggage := localbaggage.Get()
 	baggage.ReadBag(bagIndex, &xmd)
 	return
 }
 
-// Set XTraceMetadata in the goroutine-local baggage
+// Set XTraceMetadata in the goroutine-local localbaggage
 func setMetadata(xmd XTraceMetadata) {
-	baggage := GetLocalBaggage()
+	baggage := localbaggage.Get()
 	baggage.Set(bagIndex, &xmd)
-	SetLocalBaggage(baggage)
+	localbaggage.Set(baggage)
 }
 
 // Starts a new X-Trace task by generating and saving random TaskID

@@ -3,6 +3,7 @@ package client
 import (
 	"sync"
 	tp "github.com/tracingplane/tracingplane-go/tracingplane"
+	"github.com/JonathanMace/tracing-framework-go/localbaggage"
 )
 
 var registeredChannels map[interface{}]chan tp.BaggageContext = make(map[interface{}]chan tp.BaggageContext)
@@ -28,7 +29,7 @@ func RegisterChannelReciever(channel interface{}) (ch chan tp.BaggageContext) {
 // Convenience method. Get the event id of the last sender in the channel, and
 // add it to the local store of redundant edges
 func ReadChannelEvent(channel interface{}) {
-	MergeLocalWith(GetChannelSender(channel))
+	localbaggage.Merge(GetChannelSender(channel))
 }
 
 // Get the last EventID that sent a value along the provided channel.
@@ -59,7 +60,7 @@ func SendChannelEvent(channel interface{}) {
 		ch = make(chan tp.BaggageContext, BUF)
 		registeredChannels[channel] = ch
 	}
-	baggage := GetLocalBaggage()
+	baggage := localbaggage.Get()
 	// do this in a separate goroutine because chan sends can block unless there is a reciever ready
 	go func() {
 		ch <- baggage

@@ -21,7 +21,7 @@ func XTraceServerPreHandleInterceptor(ctx context.Context, req *http.Request) co
 	var msg string
 	switch {
 	case err == nil: msg = fmt.Sprintf("XTraceServerPreHandleInterceptor received HTTP response with Baggage %s", baggageStr)
-	case err != nil: msg = fmt.Sprintf("XTraceServerPreHandleInterceptor received HTTP response -- error decoding baggage %s", baggageStr)
+	case err != nil: msg = fmt.Sprintf("XTraceServerPreHandleInterceptor received HTTP response -- error decoding localbaggage %s", baggageStr)
 	}
 	fmt.Println(msg)
 	xtr.Log(msg)
@@ -41,7 +41,7 @@ func XTraceClientPostReceiveInterceptor(ctx context.Context, rsp *http.Response)
 	var msg string
 	switch {
 	case err == nil: msg = fmt.Sprintf("XTraceClientPostReceiveInterceptor received HTTP response with Baggage %s", baggageStr)
-	case err != nil: msg = fmt.Sprintf("XTraceClientPostReceiveInterceptor received HTTP response -- error decoding baggage %s", baggageStr)
+	case err != nil: msg = fmt.Sprintf("XTraceClientPostReceiveInterceptor received HTTP response -- error decoding localbaggage %s", baggageStr)
 	}
 	fmt.Println(msg)
 	xtr.Log(msg)

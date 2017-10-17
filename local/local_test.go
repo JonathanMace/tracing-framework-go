@@ -86,5 +86,46 @@ func TestSetLocal(t *testing.T) {
 	expect(t, 14, <- vchan)
 	expect(t, 15, <- vchan)
 	expect(t, 10, runtime.GetLocal())
+}
+
+func TestGoLocal(t *testing.T) {
+	gl1 := GoLocalSimple()
+	gl2 := GoLocalSimple()
+	gl3 := GoLocalDerivable(func (local interface{}) interface{} {
+		return local
+	})
+
+	gl1v := 55
+	gl1.Set(&gl1v)
+
+	gl2v := "hello"
+	gl2.Set(&gl2v)
+
+	gl3v := "blah"
+	gl3.Set(&gl3v)
+
+	assert.Equal(t, 55, *gl1.Get().(*int))
+	assert.Equal(t, "hello", *gl2.Get().(*string))
+	assert.Equal(t, "blah", *gl3.Get().(*string))
+
+	v1chan := make(chan interface{})
+	v2chan := make(chan interface{})
+	v3chan := make(chan interface{})
+	go func() {
+		v1chan <- gl1.Get()
+		v2chan <- gl2.Get()
+		v3chan <- gl3.Get()
+	}()
+
+	assert.Nil(t, <- v1chan)
+	assert.Nil(t, <- v2chan)
+	assert.Equal(t, "blah", *(<- v3chan).(*string))
+
+	assert.Equal(t, 55, *gl1.Get().(*int))
+	assert.Equal(t, "hello", *gl2.Get().(*string))
+	assert.Equal(t, "blah", *gl3.Get().(*string))
+
+
+
 
 }
