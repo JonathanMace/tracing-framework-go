@@ -13,6 +13,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"runtime"
 	"math"
+	"github.com/JonathanMace/tracing-framework-go/localbaggage"
 )
 
 var client *pubsub.Client
@@ -113,6 +114,9 @@ func logWithTags(str string, tags ...string) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "internal error: %v", err)
 	}
+
+	report.Key = append(report.Key, "Baggage")
+	report.Value = append(report.Value, fmt.Sprint(localbaggage.Get().Atoms))
 
 	// NOTE(joshlf): Currently, Log blocks until the log message
 	// has been written to the TCP connection to the X-Trace server.
